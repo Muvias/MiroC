@@ -23,7 +23,7 @@ export function NewButton() {
                 </div>
             </DialogTrigger>
 
-            <DialogContent className="max-w-[480px] p-0 border-none bg-transparent">
+            <DialogContent className="max-w-[480px] w-max p-0 border-none bg-transparent">
                 <CreateOrganization />
             </DialogContent>
         </Dialog>

@@ -1,11 +1,16 @@
 'use client'
 
+import { Actions } from "@/components/Actions"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useAuth } from "@clerk/nextjs"
+import { formatDistanceToNow } from "date-fns"
+import { MoreHorizontalIcon } from "lucide-react"
+
 import Image from "next/image"
 import Link from "next/link"
-import { Overlay } from "./Overlay"
-import { formatDistanceToNow } from "date-fns"
-import { useAuth } from "@clerk/nextjs"
+
 import { Footer } from "./Footer"
+import { Overlay } from "./Overlay"
 
 interface BoardCardProps {
     id: string
@@ -38,7 +43,20 @@ export function BoardCard({ authorId, authorName, createdAt, id, imageUrl, isFav
                         fill
                         className="object-fit"
                     />
+
                     <Overlay />
+
+                    <Actions
+                        id={id}
+                        title={title}
+                        side="right"
+                    >
+                        <button
+                            className="absolute top-1 right-1 px-3 py-1 opacity-0 group-hover:opacity-100 transition-opacity outline-none"
+                        >
+                            <MoreHorizontalIcon className="text-white opacity-75 hover:opacity-100 transition-opacity" />
+                        </button>
+                    </Actions>
                 </div>
 
                 <Footer
@@ -51,5 +69,13 @@ export function BoardCard({ authorId, authorName, createdAt, id, imageUrl, isFav
                 />
             </div>
         </Link>
+    )
+}
+
+BoardCard.Skeleton = function BoardCardSkeleton() {
+    return (
+        <div className="aspect-[100/127] rounded-lg overflow-hidden">
+            <Skeleton className="h-full w-full" />
+        </div>
     )
 }
