@@ -69,7 +69,7 @@ export function OrgSidebar() {
                     <Link href='/'>
                         <LayoutDashboardIcon className="h-4 w-4 mr-2" />
 
-                        Quadros de equipe
+                        Quadros da equipe
                     </Link>
                 </Button>
 
