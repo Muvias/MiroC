@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button";
 import { useApiMutation } from "@/hooks/use-api-mutation";
 import { useOrganization } from "@clerk/nextjs";
 import Image from "next/image";
-import { api } from "../../../../../convex/_generated/api";
+import { useRouter } from "next/router";
 import { toast } from "sonner";
+import { api } from "../../../../../convex/_generated/api";
 
 export function EmptyBoards() {
     const { organization } = useOrganization()
 
     const { mutate: create, pending } = useApiMutation(api.board.create)
+
+    const router = useRouter()
 
     function onClick() {
         if (!organization) return;
@@ -20,6 +23,8 @@ export function EmptyBoards() {
             title: "Untitled",
         }).then((id) => {
             toast.success("Quadro criado")
+
+            router.push(`/board/${id}`)
         }).catch(() => {
             toast.error("Falha ao criar o Quadro")
         })

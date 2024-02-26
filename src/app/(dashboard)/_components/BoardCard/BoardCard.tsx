@@ -9,6 +9,9 @@ import { MoreHorizontalIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
+import { useApiMutation } from "@/hooks/use-api-mutation"
+import { toast } from "sonner"
+import { api } from "../../../../../convex/_generated/api"
 import { Footer } from "./Footer"
 import { Overlay } from "./Overlay"
 
@@ -26,10 +29,23 @@ interface BoardCardProps {
 export function BoardCard({ authorId, authorName, createdAt, id, imageUrl, isFavorite, orgId, title }: BoardCardProps) {
     const { userId } = useAuth()
 
+    const { mutate: onFavorite, pending: pendingFavorite } = useApiMutation(api.board.favorite)
+    const { mutate: onUnfavorite, pending: pendingUnfavorite } = useApiMutation(api.board.unfavorite)
+
     const authorLabel = userId === authorId ? "Você" : authorName
     const createdAtLabel = formatDistanceToNow(createdAt, {
         addSuffix: true
     })
+
+    function toogleFavorite() {
+        if (isFavorite) {
+            onUnfavorite({ id })
+                .catch(() => toast.error("Falha ao remover de favoritos."))
+        } else {
+            onFavorite({ id, orgId })
+                .catch(() => toast.error("Falha ao favoritar."))
+        }
+    }
 
     return (
         <Link
@@ -64,8 +80,8 @@ export function BoardCard({ authorId, authorName, createdAt, id, imageUrl, isFav
                     title={title}
                     authorLabel={authorLabel}
                     createdAtLabel={createdAtLabel}
-                    onClick={() => { }}
-                    disabled={false}
+                    onClick={toogleFavorite}
+                    disabled={pendingFavorite || pendingUnfavorite}
                 />
             </div>
         </Link>

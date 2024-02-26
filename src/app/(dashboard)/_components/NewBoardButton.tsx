@@ -3,6 +3,7 @@
 import { useApiMutation } from "@/hooks/use-api-mutation"
 import { cn } from "@/lib/utils"
 import { PlusIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { api } from "../../../../convex/_generated/api"
 
@@ -12,6 +13,8 @@ interface NewBoardButtonProps {
 }
 
 export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
+    const router = useRouter()
+
     const { mutate: create, pending } = useApiMutation(api.board.create)
 
     function onClick() {
@@ -21,6 +24,8 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
         })
             .then((id) => {
                 toast.success("Quadro criado!")
+
+                router.push(`/board/${id}`)
             })
             .catch(() => toast.error("Falha ao criar o Quadro"))
     }

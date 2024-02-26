@@ -12,9 +12,16 @@ interface FooterProps {
 
 export function Footer({ title, authorLabel, createdAtLabel, disabled, isFavorite, onClick }: FooterProps) {
 
+    function handleClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+        e.stopPropagation()
+        e.preventDefault()
+
+        onClick()
+    }
+
     return (
         <div className="relative p-3 bg-white">
-            <p className="text-[13px] truncate max-w-[calc(100%-20px)]">
+            <p className="text-[13px] font-medium truncate max-w-[calc(100%-20px)]">
                 {title}
             </p>
 
@@ -24,7 +31,7 @@ export function Footer({ title, authorLabel, createdAtLabel, disabled, isFavorit
 
             <button
                 disabled={disabled}
-                onClick={onClick}
+                onClick={handleClick}
                 className={cn("absolute top-3 right-3 text-muted-foreground hover:text-blue-600 opacity-0 group-hover:opacity-100 transition",
                     disabled && "cursor-not-allowed opacity-75"
                 )}
