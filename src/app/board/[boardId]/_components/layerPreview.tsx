@@ -4,6 +4,8 @@ import { memo } from "react"
 import { useStorage } from "../../../../../liveblocks.config"
 import { LayerType } from "@/types/canvas"
 import { Rectangle } from "./Layers/rectangle"
+import { Ellipse } from "./Layers/ellipse"
+import { Text } from "./Layers/text"
 
 interface LayerPreviewProps {
     id: string
@@ -20,6 +22,24 @@ export const LayerPreview = memo(({ id, onLayerPointerDown, selectionColor }: La
         case LayerType.Rectangle:
             return (
                 <Rectangle
+                    id={id}
+                    layer={layer}
+                    onPointerDown={onLayerPointerDown}
+                    selectionColor={selectionColor}
+                />
+            )
+        case LayerType.Ellipse:
+            return (
+                <Ellipse
+                    id={id}
+                    layer={layer}
+                    onPointerDown={onLayerPointerDown}
+                    selectionColor={selectionColor}
+                />
+            )
+        case LayerType.Text:
+            return (
+                <Text
                     id={id}
                     layer={layer}
                     onPointerDown={onLayerPointerDown}
