@@ -1,21 +1,24 @@
 "use client"
 
-import { useCanRedo, useCanUndo, useHistory, useMutation, useOthersMapped, useStorage } from "@/../liveblocks.config"
+import { useCanRedo, useCanUndo, useHistory, useMutation, useOthersMapped, useSelf, useStorage } from "@/../liveblocks.config"
 import { LiveObject } from "@liveblocks/client"
 import { nanoid } from "nanoid"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
-import { connectionIdToColor, findIntersectingLayersWithRectangle, penPointsToPathLayer, pointerEventToCanvasPoint, resizeBounds } from "@/lib/utils"
+import { colorToCss, connectionIdToColor, findIntersectingLayersWithRectangle, penPointsToPathLayer, pointerEventToCanvasPoint, resizeBounds } from "@/lib/utils"
 
 import { CursorsPresence } from "./cursorsPresence"
 import { Info } from "./info"
 import { Participants } from "./participants"
 import { Toolbar } from "./toolbar"
 
+import { useDeleteLayers } from "@/hooks/use-delete-layers"
+import { useDisableScrollBounce } from "@/hooks/use-disable-scroll-bounce"
 import { Camera, CanvasMode, CanvasState, Color, LayerType, Point, Side, XYWH } from "@/types/canvas"
+import { Path } from "./Layers/path"
 import { SelectionBox } from "./SelectionBox"
-import { LayerPreview } from "./layerPreview"
 import { SelectionTools } from "./SelectionTools"
+import { LayerPreview } from "./layerPreview"
 
 interface CanvasProps {
     boardId: string
@@ -25,6 +28,7 @@ const MAX_LAYERS = 100;
 
 export function Canvas({ boardId }: CanvasProps) {
     const layerIds = useStorage((root) => root.layerIds)
+    const pencilDraft = useSelf((me) => me.presence.pencilDraft)
 
     const [canvasState, setCanvasState] = useState<CanvasState>({
         mode: CanvasMode.None
@@ -35,6 +39,8 @@ export function Canvas({ boardId }: CanvasProps) {
     const history = useHistory()
     const canUndo = useCanUndo()
     const canRedo = useCanRedo()
+
+    useDisableScrollBounce();
 
     const insertLayer = useMutation((
         { storage, setMyPresence },
@@ -180,8 +186,8 @@ export function Canvas({ boardId }: CanvasProps) {
             cursor: point,
             pencilDraft:
                 pencilDraft.length === 1 &&
-                pencilDraft[0][0] === point.x &&
-                pencilDraft[0][1] === point.y
+                    pencilDraft[0][0] === point.x &&
+                    pencilDraft[0][1] === point.y
                     ? pencilDraft
                     : [...pencilDraft, [point.x, point.y, e.pressure]]
         })
@@ -297,6 +303,37 @@ export function Canvas({ boardId }: CanvasProps) {
         return layerIdsToColorSelection;
     }, [selections])
 
+    const deleteLayers = useDeleteLayers()
+
+    useEffect(() => {
+        function onKeyDown(e: KeyboardEvent) {
+            switch (e.key) {
+                case "z": {
+                    if (e.ctrlKey || e.metaKey) {
+                        history.undo()
+
+                        break;
+                    }
+                }
+                case "y": {
+                    if (e.ctrlKey || e.metaKey) {
+                        history.redo()
+
+                        break;
+                    }
+                }
+
+                break;
+            }
+        }
+
+        document.addEventListener("keydown", onKeyDown)
+
+        return () => {
+            document.removeEventListener("keydown", onKeyDown)
+        }
+    }, [deleteLayers, history])
+
     return (
         <main className="w-full h-full relative bg-neutral-100 touch-none">
             <Info boardId={boardId} />
@@ -352,6 +389,15 @@ export function Canvas({ boardId }: CanvasProps) {
                     )}
 
                     <CursorsPresence />
+
+                    {pencilDraft != null && pencilDraft.length > 0 && (
+                        <Path
+                            points={pencilDraft}
+                            fill={colorToCss(lastUsedColor)}
+                            x={0}
+                            y={0}
+                        />
+                    )}
                 </g>
             </svg>
         </main>
